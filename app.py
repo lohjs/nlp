@@ -11,6 +11,10 @@ from dotenv import load_dotenv
 import time
 from openai import OpenAIError
 import emoji
+import os
+
+load_dotenv()
+openai_api_key = os.getenv("OPENAI_API_KEY")
 
 def preprocess_text(input_text):
     # Replace emojis with a special token
@@ -36,12 +40,12 @@ def textChunks(text):
     return chunks
 
 def create_vectorStore(text_chunks):
-    embeddings = OpenAIEmbeddings() # type: ignore
+    embeddings = OpenAIEmbeddings(openai_api_key=openai_api_key) # type: ignore
     vector_store = FAISS.from_texts(texts=text_chunks, embedding=embeddings)
     return vector_store
 
 def create_conversationChain(vector_store):
-    language_model = ChatOpenAI() # type: ignore
+    language_model = ChatOpenAI(openai_api_key=openai_api_key) # type: ignore
     
     memory = ConversationBufferMemory(memory_key='chat_history', return_messages=True)
     conversation_chain = ConversationalRetrievalChain.from_llm(
@@ -84,7 +88,6 @@ def userInput(query):
 
 def main():
     try:
-        load_dotenv()
         st.set_page_config(page_title="PDFs Chatbot", page_icon=":robot_face:")
         st.write(css, unsafe_allow_html=True)
 
